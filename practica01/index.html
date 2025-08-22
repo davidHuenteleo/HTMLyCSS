@@ -1,20 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Mi Página Web</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timeline Horizontal — Ejemplo UI</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#6ee7b7;
+      --accent-2:#60a5fa;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071025 0%, #071a2b 100%);color:#e6eef6}
+
+    .wrapper{max-width:1100px;margin:36px auto;padding:24px}
+
+    h1{font-size:20px;margin:0 0 18px 8px;color:var(--accent-2)}
+    p.lead{margin:0 0 20px 8px;color:var(--muted);font-size:13px}
+
+    /* Timeline container */
+    .timeline-shell{
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6);
+      overflow:hidden;
+    }
+
+    .timeline{
+      display:flex;gap:28px;align-items:center;padding:20px 12px;
+      overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    }
+    .timeline::-webkit-scrollbar{height:10px}
+    .timeline::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px}
+    .timeline::-webkit-scrollbar-track{background:transparent}
+
+    .item{
+      min-width:260px;max-width:320px;flex:0 0 auto;scroll-snap-align:center;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;padding:16px;position:relative;border:1px solid rgba(255,255,255,0.03);
+      transition:transform .28s cubic-bezier(.2,.9,.3,1),box-shadow .28s;
+    }
+    .item:focus-within, .item.active{transform:translateY(-8px);box-shadow:0 14px 40px rgba(8,12,24,0.6)}
+
+    /* timeline line & dot */
+    .item::before{
+      content:'';position:absolute;left:8px;top:50%;transform:translateY(-50%);width:44px;height:4px;background:linear-gradient(90deg,var(--accent-2),var(--accent));border-radius:999px;z-index:0;opacity:0.18
+    }
+    .dot{position:absolute;left:32px;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px rgba(110,231,183,0.06)}
+
+    .meta{display:flex;align-items:center;gap:12px;margin-bottom:8px;z-index:2;position:relative}
+    .meta .date{font-size:12px;color:var(--muted)}
+    .meta .tag{background:var(--glass);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--accent-2);border:1px solid rgba(255,255,255,0.02)}
+
+    h3{margin:6px 0 8px;font-size:16px}
+    .desc{font-size:13px;color:var(--muted);line-height:1.3;margin-bottom:12px}
+
+    .actions{display:flex;gap:8px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;font-size:13px;color:var(--accent-2);cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+
+    /* center helper to show active item */
+    .center-indicator{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px}
+    .chev{width:36px;height:36px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);display:inline-grid;place-items:center;cursor:pointer}
+
+    /* Responsive: on small widths stack vertically */
+    @media (max-width:640px){
+      .timeline{flex-direction:column;align-items:stretch;gap:18px;overflow:auto}
+      .item{min-width:auto;width:100%;}
+      .item::before{display:none}
+      .dot{left:12px}
+    }
+
+    /* small utility */
+    .muted{color:var(--muted);font-size:12px}
+  </style>
 </head>
-
 <body>
-     
-    <div class="container">
-    <div class="item">box 1</div>
-    <div class="item">box 2</div>
-    <div class="item">box 3</div>
+  <div class="wrapper">
+    <h1>Timeline — Horizontal UI</h1>
+    <p class="lead">Ejemplo de timeline horizontal. Desplaza con el trackpad, scrollbar o usa las flechas para navegar entre hitos.</p>
 
-</div>
+    <div class="timeline-shell">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px 0;">
+        <div class="center-indicator">
+          <button id="prev" class="chev" aria-label="Anterior">◀</button>
+        </div>
+        <div style="flex:1;">
+          <div class="timeline" id="timeline">
+
+            <article class="item" tabindex="0">
+              <span class="dot" aria-hidden="true"></span>
+              <div class="meta">
+                <div class="tag">Inicio</div>
+                <div class="date">Ene 2019</div>
+              </div>
+              <h3>Idea y Concepto</h3>
+              <p class="desc">Definimos el alcance del proyecto y creamos las primeras especificaciones y bosquejos de interacción.</p>
+              <div class="actions"><button class="btn">Ver detalles</button></div>
+            </article>
+
+            <article class="item" tabindex="0">
+              <span class="dot" aria-hidden="true"></span>
+              <div class="meta">
+                <div class="tag">MVP</div>
+                <div class="date">Jul 2019</div>
+              </div>
+              <h3>Prototipos y MVP</h3>
+              <p class="desc">Se construyó un prototipo interactivo para validar la experiencia con usuarios reales.</p>
+              <div class="actions"><button class="btn">Ver prototipo</button></div>
+            </article>
+
+            <article class="item" tabindex="0">
+              <span class="dot" aria-hidden="true"></span>
+              <div class="meta">
+                <div class="tag">Escala</div>
+                <div class="date">Mar 2020</div>
+              </div>
+              <h3>Escalado y QA</h3>
+              <p class="desc">Optimización, pruebas automatizadas y ampliación de funcionalidades principales.</p>
+              <div class="actions"><button class="btn">Revisar QA</button></div>
+            </article>
+
+            <article class="item" tabindex="0">
+              <span class="dot" aria-hidden="true"></span>
+              <div class="meta">
+                <div class="tag">Lanzamiento</div>
+                <div class="date">Nov 2020</div>
+              </div>
+              <h3>Lanzamiento Público</h3>
+              <p class="desc">La plataforma se liberó a usuarios finales con métricas de adopción iniciales positivas.</p>
+              <div class="actions"><button class="btn">Ver reportes</button></div>
+            </article>
+
+            <article class="item" tabindex="0">
+              <span class="dot" aria-hidden="true"></span>
+              <div class="meta">
+                <div class="tag">Iteración</div>
+                <div class="date">May 2022</div>
+              </div>
+              <h3>Mejoras Continuas</h3>
+              <p class="desc">Integración de feedback y mejoras en rendimiento y accesibilidad.</p>
+              <div class="actions"><button class="btn">Roadmap</button></div>
+            </article>
+
+          </div>
+        </div>
+        <div class="center-indicator">
+          <button id="next" class="chev" aria-label="Siguiente">▶</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px" class="muted">Tip: cada .item usa <code>scroll-snap-align: center</code> para centrado automático al navegar.</p>
+  </div>
+
+  <script>
+    // Navegación minimal: centra items y permite flechas del teclado
+    (function(){
+      const timeline = document.getElementById('timeline');
+      const items = Array.from(timeline.querySelectorAll('.item'));
+      const prev = document.getElementById('prev');
+      const next = document.getElementById('next');
+
+      let idx = 0;
+      function setActive(i, focus=true){
+        idx = Math.max(0, Math.min(items.length-1, i));
+        items.forEach((it, j)=> it.classList.toggle('active', j===idx));
+        items[idx].scrollIntoView({behavior:'smooth',inline:'center'});
+        if(focus) items[idx].focus({preventScroll:true});
+      }
+
+      prev.addEventListener('click', ()=> setActive(idx-1));
+      next.addEventListener('click', ()=> setActive(idx+1));
+
+      // click en un item lo activa
+      items.forEach((it,i)=> it.addEventListener('click', ()=> setActive(i)));
+
+      // teclas: izquierda/derecha
+      document.addEventListener('keydown', (e)=>{
+        if(['ArrowLeft','ArrowRight'].includes(e.key)){
+          e.preventDefault();
+          setActive(e.key==='ArrowRight' ? idx+1 : idx-1);
+        }
+      });
+
+      // Inicia en primer item
+      setActive(0,false);
+    })();
+  </script>
 </body>
 </html>
- 
